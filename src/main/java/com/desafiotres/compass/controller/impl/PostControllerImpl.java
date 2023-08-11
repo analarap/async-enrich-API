@@ -40,7 +40,7 @@ public class PostControllerImpl {
 
     @GetMapping("/posts")
     public ResponseEntity<List<PostDTO>> getPosts() {
-        List<PostDTO> posts = postService.getAllPosts();
+        List<PostDTO> posts = postService.getAllPosts();+
         return ResponseEntity.ok(posts);
     }
 }
