@@ -17,4 +17,5 @@ public class CommentDTO {
     @JsonProperty("body")
     private String body;
 
+
 }
