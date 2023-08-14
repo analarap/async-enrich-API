@@ -17,6 +17,7 @@ https://jsonplaceholder.typicode.com
 - Spring Boot;
 - Spring Data JPA;
 - Spring Web;
+- ActiveMq;
 - H2.
 
 ### Dependencies
@@ -38,10 +39,15 @@ https://jsonplaceholder.typicode.com
 - Java 17 or higher;
 - H2 database;
 - Maven;
+- Activemq;
 - IDE of your preference (IntelliJ or Eclipse).
 
 ### Usage
 - For the best experience, it is recommended that you use an HTTP client (preferably Postman or Insomnia).
+
+### ActiveMQ
+- ActiveMQ is an open source asynchronous messaging system for efficient communication between distributed system components.
+- The activeMQ in the project handles the processing of posts and state updates, allowing the different workflow steps to communicate asynchronously via messages.
 
 ### Database
 For the best user experience, the project contains a database embedded in the application, which is h2.
