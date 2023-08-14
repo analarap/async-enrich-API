@@ -20,7 +20,7 @@ public class Post {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "body")
+    @Column(name = "body", length = 1000)
     private String body;
 
     @Convert(converter = PostStatusConverter.class)

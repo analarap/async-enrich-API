@@ -10,7 +10,7 @@ public class Comment {
     @Id
     private Long id;
 
-    @Column(name = "body")
+    @Column(name = "body", length = 1000)
     private String body;
 
     @Column(name = "post_id")
