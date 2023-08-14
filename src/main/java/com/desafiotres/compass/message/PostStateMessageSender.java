@@ -1,6 +1,5 @@
-package com.desafiotres.compass.services;
+package com.desafiotres.compass.message;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 

@@ -26,7 +26,6 @@ public class MessageListener {
     }
 
     @JmsListener(destination = REPROCESS)
-    public void reprocessPost(Long postId) {
-        apiService.commentFind(postId);
-    }
+    public void reprocessPost(Long postId) { apiService.commentFind(postId); }
+
 }
