@@ -28,7 +28,7 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
     @ExceptionHandler(PostNotFoundException.class)
     protected ResponseEntity<Object> handlePostNotFoundException(PostNotFoundException ex) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        String errorMessage = ex.getMessage();
+        String errorMessage = "Post not found with id: " + ex.getMessage();
         return new ResponseEntity<>(errorMessage, httpStatus);
     }
 

@@ -44,7 +44,3 @@ public class PostControllerImpl {
         return ResponseEntity.ok(posts);
     }
 }
-
-
-
-

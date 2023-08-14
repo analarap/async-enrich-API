@@ -18,7 +18,6 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -149,7 +148,7 @@ public class ApiService {
     }
 
     public void disablePost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found with ID: " + postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("" + postId));
         if ((post != null && post.getState() == PostStatus.ENABLED) || (post != null && post.getState() == PostStatus.FAILED)) {
             post.setState(PostStatus.DISABLED);
             postRepository.save(post);
@@ -164,7 +163,7 @@ public class ApiService {
 
     public void reprocessPost(Long postId) {
         try {
-            Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
+            Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("" + postId));
             if (post != null && (post.getState() == PostStatus.ENABLED || post.getState() == PostStatus.DISABLED)) {
                 post.setState(PostStatus.UPDATING);
                 postRepository.save(post);
@@ -181,7 +180,7 @@ public class ApiService {
             }
 
         } catch (FeignException.NotFound feignNotFound) {
-            throw new PostNotFoundException("Post not found for ID: " + postId);
+            throw new PostNotFoundException("Post not found with ID: " + postId);
         }
     }
 
