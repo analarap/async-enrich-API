@@ -1,2 +1,4 @@
-package com.desafiotres.compass.exception;public class PostAlreadyExistsException {
+package com.desafiotres.compass.exception;
+
+public class PostAlreadyExistsException {
 }

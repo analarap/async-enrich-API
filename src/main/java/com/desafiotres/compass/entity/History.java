@@ -18,7 +18,6 @@ public class History {
 
     private String status;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
-    private Post post;
+    @Column(name = "post_id")
+    Long postId;
 }

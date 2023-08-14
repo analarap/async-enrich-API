@@ -1,6 +1,8 @@
 package com.desafiotres.compass.services;
 
+import com.desafiotres.compass.client.CommentClient;
 import com.desafiotres.compass.client.PostClient;
+import com.desafiotres.compass.dtos.CommentDTO;
 import com.desafiotres.compass.dtos.PostDTO;
 import com.desafiotres.compass.entity.Comment;
 import com.desafiotres.compass.entity.History;
@@ -27,7 +29,7 @@ public class ApiService {
     private final PostRepository postRepository;
     private final HistoryRepository historyRepository;
     private final CommentRepository commentRepository;
-    private final Comment commment;
+    private final CommentClient commentClient;
 
 
     public void createPost(Long postId) {
@@ -35,12 +37,13 @@ public class ApiService {
         if (postDTO != null) {
             Post post = new Post();
             post.setId(postDTO.getId());
+            post.setState(PostStatus.CREATED);
             postRepository.save(post);
 
             History history = new History();
             history.setDate(new Date());
             history.setStatus(PostStatus.CREATED.toString());
-            history.setPost(post);
+            history.setPostId(postId);
             historyRepository.save(history);
 
             processPost(postId);
@@ -50,20 +53,23 @@ public class ApiService {
     }
 
     public void processPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
         try {
             PostDTO postDTO = postClient.getPostById(postId);
             if (postDTO != null) {
-                Post post = new Post();
-                post.setId(postDTO.getId());
-                post.setTitle(postDTO.getTitle());
-                post.setBody(postDTO.getBody());
-                post.setState(PostStatus.POST_FIND);
-                postRepository.save(post);
+                Post postbd = new Post();
+                postbd.setId(postDTO.getId());
+                postbd.setTitle(postDTO.getTitle());
+                postbd.setBody(postDTO.getBody());
+                postbd.setHistories(post.getHistories());
+                postbd.setComments(post.getComments());
+                postbd.setState(PostStatus.POST_FIND);
+                postRepository.save(postbd);
 
                 History history = new History();
                 history.setDate(new Date());
                 history.setStatus(PostStatus.POST_FIND.toString());
-                history.setPost(post);
+                history.setPostId(postId);
                 historyRepository.save(history);
 
                 postOk(postId);
@@ -77,17 +83,65 @@ public class ApiService {
 
     public void postOk(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
-        post.setState(PostStatus.POST_OK);
+        if (post != null) {
+            post.setState(PostStatus.POST_OK);
+            postRepository.save(post);
+
+            History history = new History();
+            history.setDate(new Date());
+            history.setStatus(PostStatus.POST_OK.toString());
+            history.setPostId(postId);
+            historyRepository.save(history);
+
+        } else {
+            disablePost(postId);
+        }
     }
 
-    public void commentFind(Long commentId) {
+    public void commentFind(Long postId) {
+        List<CommentDTO> listComments = commentClient.getCommentsByPostId(postId);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
+        if(listComments != null){
+            post.setState(PostStatus.COMMENTS_OK);
+            postRepository.save(post);
 
-        commentOk(commentId);
+            for(CommentDTO commentDTO : listComments) {
+                Comment comment = new Comment();
+                comment.setPostId(postId);
+                comment.setId(commentDTO.getId());
+                comment.setBody(commentDTO.getBody());
+                commentRepository.save(comment);
+            }
+
+            History history = new History();
+            history.setDate(new Date());
+            history.setStatus(PostStatus.COMMENTS_FIND.toString());
+            history.setPostId(postId);
+            historyRepository.save(history);
+
+            commentOk(postId);
+
+        } else {
+            disablePost(postId);
+        }
     }
 
-    public void commentOk(Long commentId) {
+    public void commentOk(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
+        if (post != null) {
+            post.setState(PostStatus.COMMENTS_OK);
+            postRepository.save(post);
 
-        enabled(commentId);
+            History history = new History();
+            history.setDate(new Date());
+            history.setStatus(PostStatus.COMMENTS_OK.toString());
+            history.setPostId(postId);
+            historyRepository.save(history);
+
+            enabled(postId);
+        } else {
+            //excecao post n encontrado
+        }
     }
 
     public void disablePost(Long postId) {
@@ -99,7 +153,7 @@ public class ApiService {
             History history = new History();
             history.setDate(new Date());
             history.setStatus(PostStatus.DISABLED.toString());
-            history.setPost(post);
+            history.setPostId(postId);
             historyRepository.save(history);
         }
     }
@@ -114,7 +168,7 @@ public class ApiService {
                 History history = new History();
                 history.setDate(new Date());
                 history.setStatus(PostStatus.UPDATING.toString());
-                history.setPost(post);
+                history.setPostId(postId);
                 historyRepository.save(history);
 
                 processPost(postId);
@@ -130,10 +184,12 @@ public class ApiService {
     public void enabled(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(""));
         post.setState(PostStatus.ENABLED);
+        postRepository.save(post);
 
         History history = new History();
         history.setDate(new Date());
         history.setStatus(PostStatus.ENABLED.toString());
+        history.setPostId(postId);
         historyRepository.save(history);
     }
 
@@ -144,21 +200,13 @@ public class ApiService {
         History history = new History();
         history.setDate(new Date());
         history.setStatus(PostStatus.FAILED.toString());
+        history.setPostId(postId);
         historyRepository.save(history);
 
         disablePost(postId);
     }
 
     public List<PostDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        List<PostDTO> postDTOs = new ArrayList<>();
-        for (Post post : posts) {
-            PostDTO postDTO = new PostDTO();
-            postDTO.setId(post.getId());
-            postDTO.setTitle(post.getTitle());
-            postDTO.setBody(post.getBody());
-            postDTOs.add(postDTO);
-        }
-        return postDTOs;
+        return postRepository.findAll().stream().map(PostDTO::new).toList();
     }
 }
