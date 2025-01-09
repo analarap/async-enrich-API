@@ -1,4 +1,4 @@
-# Compass-Uol-Projeto-Tres
+# Async API
 The goal of this challenge is to create an application that asynchronously fetches posts from an external API, enriches them with comment data, and mainstains a log of processing updates.
 
 The client should be able to search and view the history of states through the API in real time.
